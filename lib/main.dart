@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sns_app/next_page.dart';
+import 'package:sns_app/post.dart';
+import 'package:sns_app/update_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -40,7 +42,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> texts = [];
+  List<Post> posts = [];
 
   @override
   void initState() {
@@ -54,9 +56,23 @@ class _MyHomePageState extends State<MyHomePage> {
         .orderBy('createdAt', descending: true)
         .get()
         .then((event) {
+
+      final docs = event.docs;
+
           setState(() {
-            final docs = event.docs;
-            texts = docs.map((doc) => doc.data()["text"].toString()).toList();
+            posts = docs.map((doc){
+              final data = doc.data();
+              final id = doc.id;
+              final text = data['text'];
+              final createdAt = data['createdAt'].toDate();
+              final updatedAt = data['updatedAt']?.toDate();
+              return Post(
+                  id: id,
+                  text: text,
+                  createdAt: createdAt,
+                  updatedAt: updatedAt,
+              );
+            },).toList();
           });
     });
   }
@@ -72,16 +88,34 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
 
         child: ListView(
-          children: texts.map((text)=> Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
-            child: Row(
-              children: [
-                const Icon(
-                    Icons.person,
-                    size:48,
-                ),
-                Text(text, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
-              ],
+          children: posts
+              .map((post)=> InkWell(
+            onTap:() async {
+      await  Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => UpdatePage(post),
+        ),
+      );
+      await _fetchFirebaseData();
+
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+              child: Row(
+                children: [
+                  const Icon(
+                      Icons.person,
+                      size:48,
+                  ),
+                  Text(
+                    post.text,
+                    style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ],
+              ),
             ),
           )).toList()
         ),
@@ -89,10 +123,11 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
          onPressed: () async {
             //画面遷移する
-               Navigator.push(
+               await  Navigator.push(
                  context,
                  MaterialPageRoute(builder: (context) => const AddPage()),
                );
+               await _fetchFirebaseData();
           },
           child: const Icon(Icons.add)
       ),
