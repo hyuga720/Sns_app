@@ -31,7 +31,6 @@ class _UpdatePageState extends State<UpdatePage> {
           TextFormField(
             initialValue: widget.post.text,
               onChanged: (value){
-            print(value);
             updatedWord = value;
             setState(() {
 
@@ -46,7 +45,7 @@ class _UpdatePageState extends State<UpdatePage> {
               _updateFirebaseData();
               Navigator.pop(context);
             },
-            child: Text('更新'),
+            child: const Text('更新'),
           ),
         ],
       ),

@@ -77,6 +77,13 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future _delete(String id) async {
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(id)
+        .delete();
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -113,6 +120,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         fontSize: 24,
                         fontWeight: FontWeight.bold
                     ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                      onPressed:() async {
+                        //データの削除
+                       await  _delete(post.id);
+                       await _fetchFirebaseData();
+                      },
+                      icon: const Icon(Icons.delete),
                   ),
                 ],
               ),

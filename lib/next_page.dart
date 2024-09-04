@@ -27,7 +27,6 @@ class AddPage extends StatefulWidget {
       body: Column(
         children: [
           TextField(onChanged: (value){
-            print(value);
               newWord = value;
             }
           ),
@@ -37,7 +36,7 @@ class AddPage extends StatefulWidget {
                 _addFirebaseData();
                 Navigator.pop(context);
               },
-            child: Text('追加'),
+            child: const Text('追加'),
           ),
         ],
       ),
